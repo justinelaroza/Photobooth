@@ -185,8 +185,11 @@ export default function PhotoboothHome() {
     const templateCanvas = document.createElement('canvas');
     const stripWidth = 500;
     const photoCount = photos.length;
-    const photoHeight = 350;
-    const spacing = 400;
+    
+    // Make frames more square/portrait to fit mobile cameras better
+    const photoWidth = stripWidth - 60; // 440px
+    const photoHeight = photoWidth * 1.2; // 528px - slightly taller than wide (portrait-ish)
+    const spacing = photoHeight + 80;
     const stripHeight = 200 + (photoCount * spacing);
     
     templateCanvas.width = stripWidth;
@@ -200,7 +203,7 @@ export default function PhotoboothHome() {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'italic 36px serif';
     ctx.textAlign = 'center';
-    ctx.fillText('I love you ❤️', stripWidth / 2, 60);
+    ctx.fillText('Happy Moments', stripWidth / 2, 60);
 
     // Draw photos
     const photoPromises = photos.map((photo, index) => {
@@ -231,7 +234,7 @@ export default function PhotoboothHome() {
           
           let drawWidth, drawHeight, offsetX, offsetY;
           
-          // Calculate to cover the frame (may crop sides)
+          // Calculate to cover the frame (may crop sides or top/bottom)
           if (imgAspect > frameAspect) {
             // Image is wider - fit height and crop sides
             drawHeight = frameHeight;
@@ -246,8 +249,9 @@ export default function PhotoboothHome() {
             offsetY = -(drawHeight - frameHeight) / 2;
           }
           
-          // Clip to frame boundaries
+          // Clip to frame boundaries to prevent overflow
           ctx.save();
+          ctx.beginPath();
           ctx.rect(30, y, frameWidth, frameHeight);
           ctx.clip();
           ctx.drawImage(img, 30 + offsetX, y + offsetY, drawWidth, drawHeight);
@@ -482,7 +486,7 @@ export default function PhotoboothHome() {
               >
                 {/* Header */}
                 <div className="text-center mb-4">
-                  <h2 className="text-xl md:text-2xl font-serif italic text-white">I love you ❤️</h2>
+                  <h2 className="text-xl md:text-2xl font-serif italic text-white">Happy Moments</h2>
                 </div>
 
                 {/* Photo Slots */}
