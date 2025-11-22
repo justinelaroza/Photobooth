@@ -114,12 +114,14 @@ export default function PhotoboothHome() {
     
     if (!video) return;
 
+    // Use video's actual dimensions (which will be portrait on mobile, landscape on desktop)
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
     const ctx = canvas.getContext('2d');
     
     // Apply filter
+    ctx.filter = 'none'; // Reset filter first
     if (currentFilter !== 'none') {
       const filterStyle = filters.find(f => f.value === currentFilter)?.style;
       ctx.filter = filterStyle;
@@ -129,10 +131,10 @@ export default function PhotoboothHome() {
     if (flipped) {
       ctx.save();
       ctx.scale(-1, 1);
-      ctx.drawImage(video, -canvas.width, 0);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
       ctx.restore();
     } else {
-      ctx.drawImage(video, 0, 0);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
     
     const imageUrl = canvas.toDataURL('image/png');
@@ -207,9 +209,9 @@ export default function PhotoboothHome() {
     // Different frame dimensions for mobile vs desktop
     let frameWidth, frameHeight;
     if (isMobile) {
-      // Mobile: Portrait frames to match portrait camera capture
+      // Mobile: Portrait frames to match mobile camera aspect ratio (3:4 or taller)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = frameWidth * 1.5; // 660px - portrait ratio
+      frameHeight = frameWidth * 1.78; // 783px - 9:16 ratio like phone cameras
     } else {
       // Desktop: Landscape frames (width > height)
       frameWidth = stripWidth - 60; // 440px
@@ -522,7 +524,7 @@ export default function PhotoboothHome() {
                       className="relative rounded overflow-hidden transition-all duration-500 hover:scale-105"
                       style={{ 
                         border: `4px solid ${borderColor}`,
-                        paddingBottom: isMobile ? '150%' : '80%', // Portrait on mobile, landscape on desktop
+                        paddingBottom: isMobile ? '178%' : '80%', // 9:16 ratio on mobile, landscape on desktop
                         backgroundColor: '#1a1a1a',
                         position: 'relative'
                       }}
