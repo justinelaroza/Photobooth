@@ -11,9 +11,20 @@ export default function PhotoboothHome() {
   const [flipped, setFlipped] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('classic');
   const [bgPattern, setBgPattern] = useState('dots');
+  const [isMobile, setIsMobile] = useState(false);
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  // Detect if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const filters = [
     { name: 'None', value: 'none', style: 'none' },
@@ -186,9 +197,18 @@ export default function PhotoboothHome() {
     const stripWidth = 500;
     const photoCount = photos.length;
     
-    // Make frames more square/portrait to fit mobile cameras better
-    const photoWidth = stripWidth - 60; // 440px
-    const photoHeight = photoWidth * 1.2; // 528px - slightly taller than wide (portrait-ish)
+    // Different dimensions for mobile vs desktop
+    let photoWidth, photoHeight;
+    if (isMobile) {
+      // Mobile: Portrait frames (taller)
+      photoWidth = stripWidth - 60; // 440px
+      photoHeight = photoWidth * 1.2; // 528px - portrait ratio
+    } else {
+      // Desktop: Landscape frames (wider)
+      photoWidth = stripWidth - 60; // 440px
+      photoHeight = 350; // Original landscape ratio
+    }
+    
     const spacing = photoHeight + 80;
     const stripHeight = 200 + (photoCount * spacing);
     
@@ -497,22 +517,27 @@ export default function PhotoboothHome() {
                       className="relative rounded overflow-hidden transition-all duration-500 hover:scale-105"
                       style={{ 
                         border: `4px solid ${borderColor}`,
-                        height: '120px',
-                        backgroundColor: '#1a1a1a'
+                        paddingBottom: isMobile ? '120%' : '80%', // Portrait on mobile, landscape on desktop
+                        backgroundColor: '#1a1a1a',
+                        position: 'relative'
                       }}
                     >
                       {photo ? (
                         <>
-                          <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
+                          <img 
+                            src={photo} 
+                            alt={`Photo ${index + 1}`} 
+                            className="absolute inset-0 w-full h-full object-cover" 
+                          />
                           <button
                             onClick={() => clearPhoto(index)}
-                            className="absolute top-1 right-1 p-1.5 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all duration-300 hover:scale-110"
+                            className="absolute top-1 right-1 p-1.5 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all duration-300 hover:scale-110 z-10"
                           >
                             <Trash2 size={14} />
                           </button>
                         </>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="absolute inset-0 flex items-center justify-center">
                           <Camera size={20} className="opacity-20 text-white" />
                         </div>
                       )}
