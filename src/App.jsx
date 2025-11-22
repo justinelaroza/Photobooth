@@ -57,14 +57,21 @@ export default function PhotoboothHome() {
   // Start camera
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: { ideal: 1280 }, 
+      // Different camera constraints for mobile vs desktop
+      const constraints = {
+        audio: false,
+        video: isMobile ? {
+          width: { ideal: 720 },  // Swap width/height for portrait on mobile
+          height: { ideal: 1280 },
+          facingMode: 'user'
+        } : {
+          width: { ideal: 1280 },
           height: { ideal: 720 },
           facingMode: 'user'
-        }, 
-        audio: false 
-      });
+        }
+      };
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       setStream(mediaStream);
       setStage('booth');
       
@@ -200,9 +207,9 @@ export default function PhotoboothHome() {
     // Different frame dimensions for mobile vs desktop
     let frameWidth, frameHeight;
     if (isMobile) {
-      // Mobile: Much taller portrait frames to fit mobile camera (9:16 ratio like phone screens)
+      // Mobile: Portrait frames to match portrait camera capture
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = frameWidth * 1.5; // 704px - tall portrait ratio
+      frameHeight = frameWidth * 1.5; // 660px - portrait ratio
     } else {
       // Desktop: Landscape frames (width > height)
       frameWidth = stripWidth - 60; // 440px
@@ -515,7 +522,7 @@ export default function PhotoboothHome() {
                       className="relative rounded overflow-hidden transition-all duration-500 hover:scale-105"
                       style={{ 
                         border: `4px solid ${borderColor}`,
-                        paddingBottom: isMobile ? '160%' : '80%', // Much taller on mobile, landscape on desktop
+                        paddingBottom: isMobile ? '150%' : '80%', // Portrait on mobile, landscape on desktop
                         backgroundColor: '#1a1a1a',
                         position: 'relative'
                       }}
