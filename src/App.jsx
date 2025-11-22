@@ -209,13 +209,13 @@ export default function PhotoboothHome() {
     // Different frame dimensions for mobile vs desktop
     let frameWidth, frameHeight;
     if (isMobile) {
-      // Mobile: Portrait frames to match mobile camera aspect ratio (3:4 or taller)
+      // Mobile: Match the actual camera capture ratio (720x1280 = 9:16)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = frameWidth * 1.78; // 783px - 9:16 ratio like phone cameras
+      frameHeight = Math.round((frameWidth / 720) * 1280); // Calculate exact ratio: 782px (9:16)
     } else {
-      // Desktop: Landscape frames (width > height)
+      // Desktop: Landscape frames (1280x720 = 16:9)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = 280; // Landscape ratio
+      frameHeight = Math.round((frameWidth / 1280) * 720); // Calculate exact ratio: 247px (16:9)
     }
     
     const spacing = frameHeight + 50;
@@ -524,7 +524,7 @@ export default function PhotoboothHome() {
                       className="relative rounded overflow-hidden transition-all duration-500 hover:scale-105"
                       style={{ 
                         border: `4px solid ${borderColor}`,
-                        paddingBottom: isMobile ? '178%' : '80%', // 9:16 ratio on mobile, landscape on desktop
+                        paddingBottom: isMobile ? `${(1280/720)*100}%` : `${(720/1280)*100}%`, // Exact camera ratio
                         backgroundColor: '#1a1a1a',
                         position: 'relative'
                       }}
