@@ -202,7 +202,7 @@ export default function PhotoboothHome() {
     if (isMobile) {
       // Mobile: Much taller portrait frames to fit mobile camera (9:16 ratio like phone screens)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = frameWidth * 1.2; // 704px - tall portrait ratio
+      frameHeight = frameWidth * 1.5; // 704px - tall portrait ratio
     } else {
       // Desktop: Landscape frames (width > height)
       frameWidth = stripWidth - 60; // 440px
