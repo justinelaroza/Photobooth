@@ -197,20 +197,20 @@ export default function PhotoboothHome() {
     const stripWidth = 500;
     const photoCount = photos.length;
     
-    // Different dimensions for mobile vs desktop
-    let photoWidth, photoHeight;
+    // Different frame dimensions for mobile vs desktop
+    let frameWidth, frameHeight;
     if (isMobile) {
-      // Mobile: Portrait frames (taller)
-      photoWidth = stripWidth - 60; // 440px
-      photoHeight = photoWidth * 1.2; // 528px - portrait ratio
+      // Mobile: Portrait frames (height > width) to match mobile camera
+      frameWidth = stripWidth - 60; // 440px
+      frameHeight = frameWidth * 1.33; // 586px - portrait ratio (3:4)
     } else {
-      // Desktop: Landscape frames (wider)
-      photoWidth = stripWidth - 60; // 440px
-      photoHeight = 350; // Original landscape ratio
+      // Desktop: Landscape frames (width > height)
+      frameWidth = stripWidth - 60; // 440px
+      frameHeight = 280; // Landscape ratio
     }
     
-    const spacing = photoHeight + 80;
-    const stripHeight = 200 + (photoCount * spacing);
+    const spacing = frameHeight + 50;
+    const stripHeight = 150 + (photoCount * spacing) + 80;
     
     templateCanvas.width = stripWidth;
     templateCanvas.height = stripHeight;
@@ -228,13 +228,13 @@ export default function PhotoboothHome() {
     // Draw photos
     const photoPromises = photos.map((photo, index) => {
       return new Promise((resolve) => {
-        const y = 120 + (index * spacing);
+        const y = 100 + (index * spacing);
         
         if (!photo) {
           // Draw empty frame
           ctx.strokeStyle = borderColor;
           ctx.lineWidth = 8;
-          ctx.strokeRect(30, y, stripWidth - 60, photoHeight);
+          ctx.strokeRect(30, y, frameWidth, frameHeight);
           resolve();
           return;
         }
@@ -244,7 +244,7 @@ export default function PhotoboothHome() {
           // Border
           ctx.strokeStyle = borderColor;
           ctx.lineWidth = 8;
-          ctx.strokeRect(30, y, stripWidth - 60, photoHeight);
+          ctx.strokeRect(30, y, frameWidth, frameHeight);
           
           // Photo (cover - fills frame and crops)
           const frameWidth = stripWidth - 60;
