@@ -57,21 +57,14 @@ export default function PhotoboothHome() {
   // Start camera
   const startCamera = async () => {
     try {
-      // Different camera constraints for mobile vs desktop
-      const constraints = {
-        audio: false,
-        video: isMobile ? {
-          width: { ideal: 720 },  // Swap width/height for portrait on mobile
-          height: { ideal: 1280 },
-          facingMode: 'user'
-        } : {
-          width: { ideal: 1280 },
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 }, 
           height: { ideal: 720 },
           facingMode: 'user'
-        }
-      };
-      
-      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        }, 
+        audio: false 
+      });
       setStream(mediaStream);
       setStage('booth');
       
@@ -114,14 +107,12 @@ export default function PhotoboothHome() {
     
     if (!video) return;
 
-    // Use video's actual dimensions (which will be portrait on mobile, landscape on desktop)
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
     const ctx = canvas.getContext('2d');
     
     // Apply filter
-    ctx.filter = 'none'; // Reset filter first
     if (currentFilter !== 'none') {
       const filterStyle = filters.find(f => f.value === currentFilter)?.style;
       ctx.filter = filterStyle;
@@ -131,10 +122,10 @@ export default function PhotoboothHome() {
     if (flipped) {
       ctx.save();
       ctx.scale(-1, 1);
-      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, -canvas.width, 0);
       ctx.restore();
     } else {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0);
     }
     
     const imageUrl = canvas.toDataURL('image/png');
@@ -209,13 +200,13 @@ export default function PhotoboothHome() {
     // Different frame dimensions for mobile vs desktop
     let frameWidth, frameHeight;
     if (isMobile) {
-      // Mobile: Match the actual camera capture ratio (720x1280 = 9:16)
+      // Mobile: Much taller portrait frames to fit mobile camera (9:16 ratio like phone screens)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = Math.round((frameWidth / 720) * 1280); // Calculate exact ratio: 782px (9:16)
+      frameHeight = frameWidth * 1.6; // 704px - tall portrait ratio
     } else {
-      // Desktop: Landscape frames (1280x720 = 16:9)
+      // Desktop: Landscape frames (width > height)
       frameWidth = stripWidth - 60; // 440px
-      frameHeight = Math.round((frameWidth / 1280) * 720); // Calculate exact ratio: 247px (16:9)
+      frameHeight = 280; // Landscape ratio
     }
     
     const spacing = frameHeight + 50;
@@ -524,7 +515,7 @@ export default function PhotoboothHome() {
                       className="relative rounded overflow-hidden transition-all duration-500 hover:scale-105"
                       style={{ 
                         border: `4px solid ${borderColor}`,
-                        paddingBottom: isMobile ? `${(1280/720)*100}%` : `${(720/1280)*100}%`, // Exact camera ratio
+                        paddingBottom: isMobile ? '120%' : '80%', // Portrait on mobile, landscape on desktop
                         backgroundColor: '#1a1a1a',
                         position: 'relative'
                       }}
